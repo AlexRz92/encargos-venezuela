@@ -1,0 +1,800 @@
+/* =============================================================================
+   Viaje a Venezuela - Lista de encargos
+   Sistema de temas (claro / oscuro) con acentos de la bandera de Venezuela.
+   Diseno mobile-first, moderno y minimalista.
+   ============================================================================= */
+
+/* ----------------------------------------------------------------------------
+   1. Tokens de tema (variables CSS)
+   ---------------------------------------------------------------------------- */
+:root {
+  /* Acentos de Venezuela */
+  --vzla-amarillo: #FFCE00;
+  --vzla-azul: #00247D;
+  --vzla-rojo: #CF142B;
+
+  /* Radios, sombras y transiciones */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.10), 0 2px 4px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.16);
+
+  --transition-fast: 120ms ease;
+  --transition: 200ms ease;
+
+  --maxw: 900px;
+
+  /* Gradiente tricolor reutilizable */
+  --grad-vzla: linear-gradient(
+    90deg,
+    var(--vzla-amarillo) 0%,
+    var(--vzla-amarillo) 33.33%,
+    var(--vzla-azul) 33.33%,
+    var(--vzla-azul) 66.66%,
+    var(--vzla-rojo) 66.66%,
+    var(--vzla-rojo) 100%
+  );
+}
+
+/* Tema claro (por defecto) */
+:root,
+[data-theme='light'] {
+  --bg: #f4f6fb;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f1f4fa;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --text: #0f172a;
+  --text-muted: #52607a;
+  --text-soft: #7a869e;
+
+  --accent: var(--vzla-azul);
+  --accent-contrast: #ffffff;
+  --accent-soft: rgba(0, 36, 125, 0.08);
+
+  --success: #16a34a;
+  --danger: var(--vzla-rojo);
+  --focus-ring: rgba(0, 36, 125, 0.35);
+
+  --track: #e5eaf3;
+  color-scheme: light;
+}
+
+/* Tema oscuro amigable para la vista de noche, alto contraste */
+[data-theme='dark'] {
+  --bg: #0b1120;
+  --bg-elevated: #131c31;
+  --surface: #16203a;
+  --surface-alt: #1d284a;
+  --border: #26324f;
+  --border-strong: #3a4972;
+
+  --text: #f1f5ff;
+  --text-muted: #b5c1de;
+  --text-soft: #8b98bd;
+
+  --accent: #5b8dff;
+  --accent-contrast: #08122b;
+  --accent-soft: rgba(91, 141, 255, 0.16);
+
+  --success: #4ade80;
+  --danger: #ff6b7d;
+  --focus-ring: rgba(91, 141, 255, 0.5);
+
+  --track: #26324f;
+  color-scheme: dark;
+}
+
+/* Respaldo por preferencia del sistema cuando no hay data-theme explicito */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0b1120;
+    --bg-elevated: #131c31;
+    --surface: #16203a;
+    --surface-alt: #1d284a;
+    --border: #26324f;
+    --border-strong: #3a4972;
+
+    --text: #f1f5ff;
+    --text-muted: #b5c1de;
+    --text-soft: #8b98bd;
+
+    --accent: #5b8dff;
+    --accent-contrast: #08122b;
+    --accent-soft: rgba(91, 141, 255, 0.16);
+
+    --success: #4ade80;
+    --danger: #ff6b7d;
+    --focus-ring: rgba(91, 141, 255, 0.5);
+
+    --track: #26324f;
+    color-scheme: dark;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   2. Base
+   ---------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.app-shell {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 16px 16px 96px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ----------------------------------------------------------------------------
+   3. Encabezado y resumen global
+   ---------------------------------------------------------------------------- */
+.app-header {
+  position: relative;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 18px 18px;
+  margin-top: 16px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: var(--grad-vzla);
+}
+
+.header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.app-subtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.theme-toggle {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  transition: background var(--transition), transform var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  background: var(--accent-soft);
+}
+
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+
+.global-summary {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.global-count {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.global-count .badge {
+  color: var(--accent);
+}
+
+.global-progress {
+  flex: 1 1 160px;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Barra de busqueda y filtros
+   ---------------------------------------------------------------------------- */
+.toolbar {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-field .search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-soft);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  outline: none;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
+}
+
+.chip[aria-pressed='true'],
+.chip.is-active {
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.select-field {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+
+/* ----------------------------------------------------------------------------
+   5. Botones
+   ---------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  transition: background var(--transition-fast), transform var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.btn:hover {
+  border-color: var(--border-strong);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn-danger {
+  color: #fff;
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-muted);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-alt);
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ----------------------------------------------------------------------------
+   6. Secciones por persona (colapsables)
+   ---------------------------------------------------------------------------- */
+.people-list {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.person-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+
+.person-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.person-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: inherit;
+}
+
+.person-toggle-icon {
+  flex: none;
+  transition: transform var(--transition);
+  color: var(--text-soft);
+}
+
+.person-card.is-collapsed .person-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.person-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.person-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.person-meta {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.person-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.person-header-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.person-actions {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding-right: 12px;
+}
+
+.person-body {
+  padding: 0 16px 16px;
+}
+
+.person-card.is-collapsed .person-body {
+  display: none;
+}
+
+/* ----------------------------------------------------------------------------
+   7. Barras de progreso
+   ---------------------------------------------------------------------------- */
+.progress {
+  position: relative;
+  height: 8px;
+  min-width: 80px;
+  flex: 1 1 auto;
+  background: var(--track);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progress__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--vzla-amarillo), var(--success));
+  transition: width var(--transition);
+}
+
+.progress.is-complete .progress__bar {
+  background: linear-gradient(90deg, var(--success), var(--success));
+}
+
+/* ----------------------------------------------------------------------------
+   8. Articulos
+   ---------------------------------------------------------------------------- */
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition), background var(--transition-fast);
+}
+
+.item-check {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  accent-color: var(--success);
+  cursor: pointer;
+}
+
+.item-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.item-name {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.item-qty {
+  margin-left: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.item-notes {
+  margin-top: 2px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.item-tags {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Etiqueta de categoria (chip) */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.item-actions {
+  flex: none;
+  display: flex;
+  gap: 2px;
+}
+
+/* Estado LISTO: tachado pero visible (no se elimina) */
+.item.is-done {
+  opacity: 0.65;
+}
+
+.item.is-done .item-name,
+.item.is-done .item-notes {
+  text-decoration: line-through;
+}
+
+/* ----------------------------------------------------------------------------
+   9. Formularios en linea
+   ---------------------------------------------------------------------------- */
+.inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  outline: none;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-row > * {
+  flex: 1 1 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ----------------------------------------------------------------------------
+   10. Modal
+   ---------------------------------------------------------------------------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+/* ----------------------------------------------------------------------------
+   11. Estados: aviso, vacio, carga
+   ---------------------------------------------------------------------------- */
+.banner {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--bg-elevated));
+  color: var(--text);
+}
+
+.banner[hidden] {
+  display: none;
+}
+
+.banner__title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.banner code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--surface-alt);
+  font-size: 0.85em;
+}
+
+.empty-state,
+.loading-state {
+  margin-top: 24px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.empty-state__emoji {
+  font-size: 2.4rem;
+}
+
+.no-results {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+/* Barra de accion flotante para agregar persona */
+.fab-row {
+  margin-top: 20px;
+}
+
+/* ----------------------------------------------------------------------------
+   12. Responsive: adaptacion a pantallas grandes (desktop)
+   ---------------------------------------------------------------------------- */
+@media (min-width: 720px) {
+  .app-shell {
+    padding: 24px 24px 96px;
+  }
+
+  .app-title {
+    font-size: 1.7rem;
+  }
+
+  .toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .search-field {
+    flex: 1 1 320px;
+    max-width: 420px;
+  }
+
+  .filter-row {
+    justify-content: flex-end;
+  }
+}
+
+/* Reduce animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

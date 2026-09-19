@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Lista compartida para organizar los encargos de un viaje a Venezuela, por persona y en tiempo real."
+    />
+    <meta name="theme-color" content="#00247D" />
+    <title>Encargos para Venezuela</title>
+
+    <!-- Inicializa el tema antes de pintar para evitar el parpadeo (flash) -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('vzla-theme');
+          if (saved === 'light' || saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', saved);
+          }
+        } catch (e) {
+          /* localStorage no disponible: se usa la preferencia del sistema */
+        }
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://esm.sh" crossorigin />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='33.3' y='0' fill='%23FFCE00'/%3E%3Crect width='100' height='33.3' y='33.3' fill='%2300247D'/%3E%3Crect width='100' height='33.4' y='66.6' fill='%23CF142B'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- ================= Encabezado + resumen global ================= -->
+      <header class="app-header">
+        <div class="header-top">
+          <div>
+            <h1 class="app-title">Encargos para Venezuela</h1>
+            <p class="app-subtitle">
+              Lista compartida de lo que le llevamos a cada persona 🇻🇪
+            </p>
+          </div>
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Cambiar entre modo claro y oscuro"
+            title="Cambiar tema"
+          >
+            <span aria-hidden="true">🌙</span>
+          </button>
+        </div>
+
+        <div class="global-summary">
+          <p class="global-count">
+            Listos: <span class="badge" id="global-count">0 de 0</span>
+          </p>
+          <div class="progress global-progress" role="progressbar" aria-label="Progreso general">
+            <div class="progress__bar" id="global-progress-bar"></div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= Aviso de configuracion faltante ================= -->
+      <div id="config-banner" class="banner" role="alert" hidden>
+        <div class="banner__title">⚠️ Falta configurar Supabase</div>
+        <p>
+          Copia <code>public/config.example.js</code> a
+          <code>public/config.js</code> y completa tu <code>SUPABASE_URL</code> y
+          <code>SUPABASE_ANON_KEY</code> para que la lista se guarde y se
+          comparta entre dispositivos.
+        </p>
+      </div>
+
+      <!-- ================= Barra de busqueda y filtros ================= -->
+      <div class="toolbar">
+        <div class="search-field">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input
+            id="search-input"
+            class="search-input"
+            type="search"
+            placeholder="Buscar artículo o nota..."
+            autocomplete="off"
+            aria-label="Buscar artículo"
+          />
+        </div>
+        <div class="filter-row">
+          <button
+            id="filter-pending"
+            class="chip"
+            type="button"
+            aria-pressed="false"
+          >
+            Solo pendientes
+          </button>
+          <label class="visually-hidden" for="filter-category">Categoría</label>
+          <select id="filter-category" class="select-field">
+            <option value="">Todas las categorías</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ================= Estado de carga ================= -->
+      <div id="loading-state" class="loading-state" hidden>Cargando lista…</div>
+
+      <!-- ================= Estado vacio ================= -->
+      <div id="empty-state" class="empty-state" hidden>
+        <div class="empty-state__emoji" aria-hidden="true">🧳</div>
+        <p>Todavía no hay personas en la lista.</p>
+        <p>Agrega la primera para empezar a organizar los encargos.</p>
+      </div>
+
+      <!-- ================= Contenedor de secciones por persona ================= -->
+      <main id="people-list" class="people-list" aria-live="polite"></main>
+
+      <!-- ================= Agregar persona ================= -->
+      <div class="fab-row">
+        <button id="add-person" class="btn btn-primary btn-block" type="button">
+          ＋ Agregar persona
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= Modal reutilizable ================= -->
+    <div id="modal-backdrop" class="modal-backdrop" hidden>
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <h2 class="modal-title" id="modal-title">Título</h2>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+    <!--
+      Orden de carga OBLIGATORIO:
+      1) config.js  -> define window.APP_CONFIG (script normal, sin modulo)
+      2) app.js     -> logica de la app (modulo ES, importa Supabase desde CDN)
+    -->
+    <script src="config.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
