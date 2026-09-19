@@ -479,9 +479,7 @@ async function reloadAndRender() {
  * @returns {boolean}
  */
 function itemMatchesFilters(item) {
-  if (filters.onlyPending && item.done) return false;
-  if (filters.category && (item.category || 'otros') !== filters.category)
-    return false;
+  if (!itemMatchesFiltersIgnoringSearch(item)) return false;
   if (filters.search) {
     const q = filters.search.toLowerCase();
     const hay =
@@ -493,11 +491,37 @@ function itemMatchesFilters(item) {
 }
 
 /**
+ * Como itemMatchesFilters pero SIN aplicar el texto de busqueda. Solo evalua
+ * los filtros de "solo pendientes" y categoria. Se usa cuando la persona
+ * coincide por nombre y queremos mostrar todos sus articulos.
+ * @param {object} item
+ * @returns {boolean}
+ */
+function itemMatchesFiltersIgnoringSearch(item) {
+  if (filters.onlyPending && item.done) return false;
+  if (filters.category && (item.category || 'otros') !== filters.category)
+    return false;
+  return true;
+}
+
+/**
  * Indica si hay algun filtro activo.
  * @returns {boolean}
  */
 function anyFilterActive() {
   return !!(filters.search || filters.onlyPending || filters.category);
+}
+
+/**
+ * Devuelve true si el nombre de la persona coincide con el texto de busqueda.
+ * Util cuando hay muchas personas y se quiere encontrar una rapido por nombre.
+ * @param {object} person
+ * @returns {boolean}
+ */
+function personNameMatchesSearch(person) {
+  if (!filters.search) return false;
+  const q = filters.search.toLowerCase();
+  return (person.name || '').toLowerCase().includes(q);
 }
 
 /**
@@ -753,7 +777,14 @@ function renderPerson(person, forceExpanded) {
   // ---- Cuerpo (articulos + agregar) ----
   const body = el('div', 'person-body');
 
-  const visibleItems = person.items.filter(itemMatchesFilters);
+  // Si el nombre de la persona coincide con la busqueda, mostramos TODOS sus
+  // articulos (ignorando el texto de busqueda para esta persona, pero
+  // respetando los filtros de "solo pendientes" y categoria). Asi, al buscar
+  // por nombre, se ve la lista completa de esa persona.
+  const nameMatch = personNameMatchesSearch(person);
+  const visibleItems = person.items.filter((it) =>
+    nameMatch ? itemMatchesFiltersIgnoringSearch(it) : itemMatchesFilters(it)
+  );
 
   if (person.items.length === 0) {
     body.appendChild(
@@ -801,7 +832,11 @@ function render() {
 
   people.forEach((person) => {
     if (filtering) {
-      const hasMatch = person.items.some(itemMatchesFilters);
+      // La persona se muestra si su nombre coincide con la busqueda, o si
+      // tiene algun articulo que pase los filtros. Buscar por nombre facilita
+      // encontrar una persona rapido cuando la lista es larga.
+      const nameMatch = personNameMatchesSearch(person);
+      const hasMatch = nameMatch || person.items.some(itemMatchesFilters);
       if (!hasMatch) return;
     }
     anyShown = true;
